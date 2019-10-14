@@ -22,7 +22,7 @@
 #include "e2_procfs.h"
 
 #include <linux/dvb/frontend.h>
-#include "dvbdev.h"
+#include <media/dvbdev.h>
 
 #define DVB_MAX_FRONTEND 8
 
