@@ -220,7 +220,7 @@ struct ProcWriteInfo
 };
 
 typedef int (*proc_read_t) (struct seq_file *m, void* data);
-typedef int (*proc_write_t) (struct ProcWriteInfo *proc_info, char *kbuf);
+typedef int (*proc_write_t_e2) (struct ProcWriteInfo *proc_info, char *kbuf);
 
 struct ProcStructure_s
 {
@@ -228,7 +228,7 @@ struct ProcStructure_s
 	char*					name;
 	struct proc_dir_entry*	entry;
 	proc_read_t				read_proc;
-	proc_write_t			write_proc;
+	proc_write_t_e2			write_proc;
 	struct ProcWriteInfo*	proc_info;
 	void*					identifier; /* needed for cpp stuff */
 };
