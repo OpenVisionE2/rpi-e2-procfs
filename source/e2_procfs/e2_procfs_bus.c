@@ -21,11 +21,54 @@
 
 #include "e2_procfs.h"
 
-#include <linux/dvb/frontend.h>
+#include <media/dvb_frontend.h>
 #include <media/dvbdev.h>
 
 #define DVB_MAX_FRONTEND 8
 
+enum dvbv3_emulation_type {
+	DVBV3_UNKNOWN,
+	DVBV3_QPSK,
+	DVBV3_QAM,
+	DVBV3_OFDM,
+	DVBV3_ATSC,
+};
+
+static enum dvbv3_emulation_type dvbv3_type(u32 delivery_system)
+{
+	switch (delivery_system) {
+	case SYS_DVBC_ANNEX_A:
+	case SYS_DVBC_ANNEX_C:
+		return DVBV3_QAM;
+	case SYS_DVBS:
+	case SYS_DVBS2:
+	case SYS_TURBO:
+	case SYS_ISDBS:
+	case SYS_DSS:
+		return DVBV3_QPSK;
+	case SYS_DVBT:
+	case SYS_DVBT2:
+	case SYS_ISDBT:
+	case SYS_DTMB:
+		return DVBV3_OFDM;
+	case SYS_ATSC:
+	case SYS_ATSCMH:
+	case SYS_DVBC_ANNEX_B:
+		return DVBV3_ATSC;
+	case SYS_UNDEFINED:
+	case SYS_ISDBC:
+	case SYS_DVBH:
+	case SYS_DAB:
+	default:
+		/*
+		 * Doesn't know how to emulate those types and/or
+		 * there's no frontend driver from this type yet
+		 * with some emulation code, so, we're not sure yet how
+		 * to handle them, or they're not compatible with a DVBv3 call.
+		 */
+		return DVBV3_UNKNOWN;
+	}
+}
 
 int e2procfs_nim_sockets_write(struct ProcWriteInfo *proc_info, char *kbuf)
 {
@@ -36,16 +79,10 @@ int e2procfs_nim_sockets_write(struct ProcWriteInfo *proc_info, char *kbuf)
 int e2procfs_nim_sockets_show(struct seq_file *m, void* data)
 {
 	int userspace = 0;
-	int TunerType_S = 0;
-	int TunerType_C = 1;
-	int TunerType_T = 2;
 	struct ProcWriteInfo *proc_info = m->private;
-	char *ArrayDVBTunerType[] =  { "UNKNOWN","UNKNOWN","UNKNOWN","UNKNOWN","UNKNOWN","UNKNOWN","UNKNOWN","UNKNOWN","UNKNOWN"};
+	char *ArrayDVBTunerType[] =  { "DVB-S","DVB-C","DVB-T","ATSC"};
 	char **DVBTunerType;
 	DVBTunerType = ArrayDVBTunerType;
-		DVBTunerType[TunerType_S]="DVB-S";
-		DVBTunerType[TunerType_C]="DVB-C";
-		DVBTunerType[TunerType_T]="DVB-T";
 /*	DVB-S2 is a special case of DVB-S and is tested from frontend capabilities	*/
 
 	if (proc_info->count > 0)
@@ -63,7 +100,7 @@ int e2procfs_nim_sockets_show(struct seq_file *m, void* data)
 			seq_printf(m,
 			"NIM Socket 0:\n"
 			"\tType: DVB-T2\n"
-			"\tName: Availink avl6862\n"
+			"\tName: Generic Card\n"
 			"\tHas_Outputs: no\n"
 			"\tFrontend_Device: 0\n"
 			);
@@ -84,18 +121,32 @@ int e2procfs_nim_sockets_show(struct seq_file *m, void* data)
  					if (fe_fd != NULL)
  					{
  						struct dvb_device *dvbdev = fe_fd->private_data;
+						struct dvb_frontend *fe = dvbdev->priv;
  						struct dvb_frontend_info fe_info;
- 						struct dtv_property p[] = {{ .cmd = DTV_DELIVERY_SYSTEM }};
- 						struct dtv_properties cmdseq = { .num = 1, .props = p };
+						memset(&fe_info, 0, sizeof(fe_info));
+						struct dtv_frontend_properties *fe_prop = &fe->dtv_property_cache;
 
  						if (dvb_generic_ioctl(fe_fd, FE_GET_INFO, 0))
  						{
- 							dvbdev->kernel_ioctl(fe_fd, FE_GET_INFO, &fe_info);
+							strcpy(fe_info.name, fe->ops.info.name);
+							fe_info.caps = fe->ops.info.caps;
+							switch (dvbv3_type(fe_prop->delivery_system)) {
+								case DVBV3_QPSK:
+									fe_info.type = FE_QPSK;
+									break;
+								case DVBV3_ATSC:
+									fe_info.type = FE_ATSC;
+									break;
+								case DVBV3_QAM:
+									fe_info.type = FE_QAM;
+									break;
+								case DVBV3_OFDM:
+									fe_info.type = FE_OFDM;
+									break;
+								default:
+									fe_info.type = FE_OFDM;
+							}
 
- 							if (dvb_generic_ioctl(fe_fd, FE_GET_PROPERTY, 0))
- 							{
- 								dvbdev->kernel_ioctl(fe_fd, FE_GET_PROPERTY, &cmdseq);
- 	 						
 
 /* 	2nd generation DVB Tuner detected adding 2 to the TunerType */
 								if ( (fe_info.caps & FE_CAN_2G_MODULATION ) == FE_CAN_2G_MODULATION )
@@ -133,7 +184,6 @@ int e2procfs_nim_sockets_show(struct seq_file *m, void* data)
 								}
 	
 								nsocket_index++; 					
- 							}
  						}
 					}
 
