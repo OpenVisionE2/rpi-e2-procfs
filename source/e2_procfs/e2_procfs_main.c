@@ -41,8 +41,9 @@ struct ProcStructure_s e2Proc[] =
 	{cProcEntry, "stb/frontend/0/mode"                                              , NULL, e2procfs_frontend_mode_show, e2procfs_frontend_mode_write, NULL, ""},
 
 	{cProcDir  , "stb/info"                                                         , NULL, NULL, NULL, NULL, ""},
+	{cProcEntry, "stb/info/brand"                                                   , NULL, e2procfs_info_brand_show, NULL, NULL, ""},
 	{cProcEntry, "stb/info/model"                                                   , NULL, e2procfs_info_model_show, NULL, NULL, ""},
-	{cProcEntry, "stb/info/boxtype"                                                 , NULL, e2procfs_info_boxtype_show, NULL, NULL, ""},
+	// {cProcEntry, "stb/info/boxtype"                                                 , NULL, NULL, NULL, NULL, ""},
 	{cProcEntry, "stb/info/chipset"                                                 , NULL, e2procfs_info_chipset_show, NULL, NULL, ""},
 
 	{cProcDir  , "stb/video"                                                        , NULL, NULL, NULL, NULL, ""},
@@ -397,7 +398,7 @@ static void __exit e2procfs_cleanup_module(void)
 	//	save_data_to_file("/tmp/kernel.txt", O_RDWR | O_CREAT | O_APPEND, buffer, bytes);
 	}
 }
-MODULE_AUTHOR("Open Vision Developers");
+MODULE_AUTHOR("Open Vision developers");
 MODULE_DESCRIPTION("RaspberryPi enigma2 procfs driver");
 MODULE_LICENSE("GPL");
 MODULE_VERSION("1.0.0");

@@ -250,7 +250,7 @@ int e2procfs_dts_write(struct ProcWriteInfo *proc_info, char *kbuf);
 int e2procfs_dtschoices_show(struct seq_file *m, void* data);
 
 int e2procfs_info_model_show(struct seq_file *m, void* data);
-int e2procfs_info_boxtype_show(struct seq_file *m, void* data);
+int e2procfs_info_brand_show(struct seq_file *m, void* data);
 int e2procfs_info_chipset_show(struct seq_file *m, void* data);
 int e2procfs_nim_sockets_show(struct seq_file *m, void* data);
 

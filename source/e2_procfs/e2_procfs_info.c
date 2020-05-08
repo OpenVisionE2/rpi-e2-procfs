@@ -23,21 +23,21 @@
 
 int e2procfs_info_model_show(struct seq_file *m, void* data)
 {
-	seq_printf(m, "rpi\n");
+	seq_printf(m, "@rpi@\n");
 
 	return 0;
 }
 
-int e2procfs_info_boxtype_show(struct seq_file *m, void* data)
+int e2procfs_info_brand_show(struct seq_file *m, void* data)
 {
-	seq_printf(m, "RaspberryPi\n");
+	seq_printf(m, "@RaspberryPi@\n");
 
 	return 0;
 }
 
 int e2procfs_info_chipset_show(struct seq_file *m, void* data)
 {
-	seq_printf(m, "BCMRPi\n");
+	seq_printf(m, "@BCMRPi@\n");
 
 	return 0;
 }

@@ -104,11 +104,11 @@ int e2procfs_amlosd_show(struct seq_file *m, void* data)
 	seq_printf(m, "scale_axis:%d %d %d %d\n", x0, y0, x1, y1);
 	osd_get_window_axis_hw(0, &x0, &y0, &x1, &y1);
 	seq_printf(m, "window_axis:%d %d %d %d\n", x0, y0, x1, y1);
-	// osd_get_osd_antiflicker(0, &osd_antiflicker);
-	// seq_printf(m, "osddev_get_osd_antiflicker:%d\n", osd_antiflicker);
+	//osd_get_osd_antiflicker(0, &osd_antiflicker);
+	//seq_printf(m, "osddev_get_osd_antiflicker:%d\n", osd_antiflicker);
 
-	// osd_get_prot_canvas(0, &x_start, &y_start, &x_end, &y_end);
-	// seq_printf(m, "prot_canvas:%d %d %d %d\n", x_start, y_start, x_end, y_end);
+	//osd_get_prot_canvas(0, &x_start, &y_start, &x_end, &y_end);
+	//seq_printf(m, "prot_canvas:%d %d %d %d\n", x_start, y_start, x_end, y_end);
 
 	seq_printf(m, "gbl_alpha:%d\n", osd_get_gbl_alpha_hw(0));
 

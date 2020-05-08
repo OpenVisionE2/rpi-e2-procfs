@@ -154,7 +154,6 @@ int e2procfs_vachoices_show(struct seq_file *m, void* data)
 
 	return 0;
 }
-
 /*
 int e2procfs_vaspect_show(struct seq_file *m, void* data)
 {
