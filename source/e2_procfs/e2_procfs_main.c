@@ -228,8 +228,11 @@ static int e2procfs_open(struct inode *inode, struct file *file)
 
 	path = kmalloc(PAGE_SIZE, GFP_KERNEL);
 	e2Proc_fpath = kmalloc(PAGE_SIZE, GFP_KERNEL);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,26)
+	ptr = d_path(file->f_dentry, file->f_vfsmnt, path, PAGE_SIZE);
+#else
 	ptr = d_path(&file->f_path, path, PAGE_SIZE);
-
+#endif
 	proc_info->proc_i = -EPERM;
 
 	for (i = 0; i < sizeof(e2Proc) / sizeof(e2Proc[0]); i++)
@@ -378,13 +381,20 @@ static int __init e2procfs_init_module(void)
 
 				break;
 			case cProcEntry:
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
+				e2Proc[i].entry = create_proc_entry(
+					(strcmp("bus", path) == 0) ? e2Proc[i].name : name,
+					0,
+					(strcmp("bus", path) == 0) ? NULL : find_proc_dir(path)
+				);
+#else
 				e2Proc[i].entry = proc_create(
 					(strcmp("bus", path) == 0) ? e2Proc[i].name : name,
 					0,
 					(strcmp("bus", path) == 0) ? NULL : find_proc_dir(path),
 					&e2procfs_fops
 				);
-
+#endif
 				break;
 			default:
 				printk("%s(): invalid type %d\n", __func__, e2Proc[i].type);
